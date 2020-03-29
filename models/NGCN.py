@@ -101,10 +101,8 @@ class NAS_layer(nn.Module):
         if training:
             ops_weights = F.softmax(ops_weights - torch.max(ops_weights, -1, keepdim=True)[0], -1)
         else:
-            ops_weights[:,:,0] = torch.min(ops_weights, -1)[0] - 1.0
             ops_weights_max = torch.max(ops_weights, -1, keepdim=True)[0]
-            ops_weights[ops_weights < ops_weights_max] = 0.0
-            ops_weights[ops_weights >= ops_weights_max] = 1.0
+            ops_weight = torch.where(ops_weights < ops_weights_max, torch.zeros_like(ops_weight), torch.ones_like(ops_weight))
         var_loss = torch.var(torch.sum(ops_weights, 1), 1).mean()
         ## MixOps
         states = [local_feat]
